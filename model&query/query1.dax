@@ -1,0 +1,244 @@
+﻿DEFINE
+    MEASURE Sales[Total Sales] =
+        SUM ( Sales[Sales Amount] )
+    MEASURE Sales[Total Cost] =
+        SUMX ( Sales, Sales[Unit Price] * Sales[Order Quantity] )
+EVALUATE
+{ [Total Sales] }
+
+EVALUATE
+{ [Total Cost] }
+
+EVALUATE
+FILTER ( 'Product', 'Product'[Color] = "Red" )
+
+
+EVALUATE
+FILTER ( 'Product', 'Product'[SKU] = "HL-U509-R" )
+
+EVALUATE
+SUMMARIZECOLUMNS (
+    Customer[City],
+    'Product'[Category],
+//    Reseller[Business Type],
+    FILTER ( ALL ( Customer[City] ), Customer[City] = "Seaford" ),
+//    TREATAS ( { "Caps", "Jerseys" }, 'Product'[Subcategory] ),
+    "Total Sales Amount", SUM( Sales[Sales Amount] )
+)
+
+EVALUATE
+SUMMARIZECOLUMNS (
+    Customer[City],
+    'Product'[Category],
+//    Reseller[Business Type],
+    FILTER ( ALL ( Customer[City] ), Customer[City] = "Seaford" ),
+//    TREATAS ( { "Caps", "Jerseys" }, 'Product'[Subcategory] ),
+    "Total Customer Numbers", DISTINCTCOUNT( Customer[Customer ID] )
+)
+
+DEFINE
+    MEASURE Sales[My Sales Amount] =
+        SUM ( Sales[Sales Amount] )
+EVALUATE
+ADDCOLUMNS ( VALUES ( 'Date'[Fiscal Year] ), "My Sales Amount", [My Sales Amount] )
+
+DEFINE
+    MEASURE Sales[My Order Taken] =
+        DISTINCTCOUNT( Sales[SalesOrderLineKey] )
+EVALUATE
+ADDCOLUMNS ( VALUES ( 'Date'[Month] ), "My Sales Amount", [My Order Taken] )
+
+EVALUATE
+VALUES ( Customer[City] )
+
+EVALUATE Customer
+
+EVALUATE
+CALCULATETABLE ( Customer, Customer[City] = "Redmond" )
+
+EVALUATE
+CALCULATETABLE ( VALUES ( Customer[City] ), LEFT ( Customer[City], 1 ) = "R" )
+
+DEFINE
+    MEASURE Sales[My Sales Amount] =
+        SUM ( Sales[Sales Amount] )
+EVALUATE
+ADDCOLUMNS(
+	CALCULATETABLE ( VALUES ( Reseller[Reseller ID] ), Reseller[Business Type] = "Warehouse" ),
+	"My Sales Amount", [My Sales Amount])
+
+DEFINE
+    MEASURE Sales[My Sales Amount] =
+        SUM ( Sales[Sales Amount] )
+EVALUATE
+ADDCOLUMNS(
+	CALCULATETABLE ( VALUES ('Sales Territory'[Country] ), 'Sales Territory'[Country]  = "United States" ),
+	"My Sales Amount", [My Sales Amount])
+
+
+DEFINE
+    MEASURE Sales[My Sales Amount] =
+        SUM ( Sales[Sales Amount] )
+    MEASURE Sales[My Quantities] =
+    	SUM (Sales[Order Quantity])
+EVALUATE	
+	ADDCOLUMNS( VALUES ('Sales Territory'[Country] ),
+	"My Sales Amount", [My Sales Amount], "My Quantities", [My Quantities])
+
+evaluate( values('Sales'[OrderDateKey])  )
+
+evaluate(
+           ROW ( "Count" ,COUNTROWS('Sales') )
+)
+
+DEFINE
+    TABLE SampleData = { 2, 4, 4, 4, 5, 5, 7, 9 }
+EVALUATE
+SAMPLE ( 3, SampleData, [Value], DESC )
+ 
+
+evaluate(
+                ROW ( "No. Distinct Products" ,DISTINCTCOUNT('Sales'[ProductKey]) )
+)
+
+evaluate( filter('Sales', [ProductKey] = 223))
+
+evaluate(
+          filter(
+                 filter('Sales', [ProductKey] = 223)
+               , [OrderDateKey] > 20170000)
+)
+
+evaluate(
+         'Sales'
+)
+ order by [ProductKey] DESC
+ 
+ evaluate(
+         TOPN(10, 'Sales', [OrderDateKey])
+)
+
+//summarize = Sales table group by [ProductKey] and to show under column name Total Sales
+evaluate(
+         summarize(
+                   'Sales',
+                   [ProductKey],
+                   "Total Sales", SUM('Sales'[Sales Amount] )
+                   
+                )
+)
+
+//Rank
+
+EVALUATE (
+SUMMARIZE ('Sales'
+                  ,[ProductKey]
+                   ,"Sum Sales", sum('Sales'[Sales Amount])
+                   ,"Rank",RANKX(ALL('Sales'[ProductKey]),SUMX(RELATEDTABLE('Sales'),[Sales Amount]))
+          )
+) 
+ order by [Rank]
+ 
+evaluate(
+         ROW(
+         "MinOrderDate", min('Sales'[OrderDateKey]) ,
+         "MaxOrderDate", max('Sales'[OrderDateKey]) )
+)
+
+evaluate(
+         ROW ( " Timestamp’" ,NOW() )
+)
+
+evaluate(
+         ROW ( "Beginning of time" ,DATEVALUE( "01/01/1900") )
+)
+
+evaluate(
+         ROW ( "First Year" , Year(Date(1900,1,1)),
+         "First Month", Month(Date(1900,1,1)),
+         "First Day", Day(Date(1900,1,1))  )
+)
+evaluate(
+         ROW ( "One month previous" ,eDate(now() ,-1) )
+)
+//string find and search
+evaluate(
+         ROW ( "FIND", FIND( "A", "ABC" ), "Search", SEARCH( "a", "ABC" ) )
+)
+
+evaluate(
+         ROW ( "FIND", FIND( "A", "ABC",1,-1 ), "Search", SEARCH( "a", "ABC", 2,-1 ) )
+)
+evaluate(
+         ROW ( "Pen Colour", Substitute("The pen is blue","blue","red"),
+              "Sky Colour", Replace("The pen is blue", 5,3, "Sky") )
+)
+
+//convert string into number by VALUE
+Evaluate ( ROW ( "Number 4", VALUE("4") ) )
+
+
+EVALUATE
+    SAMPLE ( 5, VALUES ( 'Product'[Color] ), 'Product'[Color], ASC )
+ORDER BY [Color] ASC
+
+EVALUATE
+    SAMPLE ( 5, 'Product', 'Product'[Color], ASC, 'Product'[Model], ASC )
+ORDER BY 'Product'[Color] ASC, 'Product'[Model] ASC
+
+--  SEARCH searches the position of a substring inside a string.
+--  Comparison is NOT case-sensitive.
+--  You can provide the position from where to start searching
+--  and a default value to return in case of no-match.
+--  SEARCH supports wildcards: ? and * to match any character or any
+--  sequence of characters.
+
+EVALUATE
+CALCULATETABLE (
+    ADDCOLUMNS (
+        TOPN ( 5, VALUES ( 'Product'[Product] ) ),
+        "S*blue", SEARCH ( "S*blue", 'Product'[Product], 1, BLANK () )
+    ),
+    'Product'[Color] IN { "Red", "Blue" }
+)
+
+--  Extract time parts from a DateTime column
+EVALUATE
+ADDCOLUMNS (
+    TOPN ( 10, VALUES ( Sales[Order Time] ) ),
+    "Hour",   HOUR   ( Sales[Order Time] ),
+    "Minute", MINUTE ( Sales[Order Time] ),
+    "Second", SECOND ( Sales[Order Time] )
+)
+
+--  SELECTCOLUMNS is an iterator that returns a selection of
+--  columns / expressions evaluated in the row context during
+--  the iteration over its first parameter.
+EVALUATE
+    SELECTCOLUMNS (
+        TOPN ( 10, 'Product' ),
+        "Product Category", 'Product'[Category],
+        "Product Subcategory", 'Product'[Subcategory],
+        "Product Color", 'Product'[Color],
+        "Product Name", 'Product'[Product],
+        "#Products", CALCULATE ( COUNTROWS ( 'Product' ) ),
+        "Sales", SUM(sales[Sales Amount])
+    )
+    
+--  SELECTCOLUMNS has a row context that can be used to write 
+--  expressions that navigate through relationships.
+EVALUATE
+CALCULATETABLE (
+    SELECTCOLUMNS (
+        Sales,
+        "Order Number", DISTINCTCOUNT('Sales Order'[Sales Order]),
+        "Order Line Number", DISTINCTCOUNT('Sales Order'[SalesOrderLineKey]),
+        "Customer", RELATED ( Customer[Customer] ),
+        "Product", RELATED ( 'Product'[Product] ),
+        "Quantity", Sales[Order Quantity],
+        "Line Amount", Sales[Order Quantity] * Sales[Unit Price]
+    ),
+    'Date'[Fiscal Year] = "FY2018",
+    Customer[Country-Region] = "United States"
+)
+
