@@ -11,20 +11,21 @@
 ## Images References:
 
 #### Cover Page
-1. ![Cover Page](screen_shoot/p0.png)
+
+1. ![Cover Page](screen_shoots/p0.png)
 
 #### Data Visualization 
 
-2. ![p1 Page](screen_shoot/p1.png)
+2. ![p1 Page](screen_shoots/p1.png)
 
 ---
 
-    ![Cover Page](screen_shoot/p2.png)
+ 3.  ![p2 Page](screen_shoots/p2.png)
     
 ---
    
-   ![Cover Page](screen_shoot/p3.png)
+ 4.  ![Cover Page](screen_shoots/p3.png)
    
 ---
 
-    ![Cover Page](screen_shoot/p4.png)
+ 5.  ![Cover Page](screen_shoots/p4.png)
