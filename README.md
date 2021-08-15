@@ -23,12 +23,12 @@
 ---
 
  3. 
- ![p2 Page](/screen_shoots/p2.PNG)
+ ![p2 Page](/screen_shoots/P2.PNG)
     
 ---
    
  4. 
- ![p3 Page](/screen_shoots/p3.PNG)
+ ![p3 Page](/screen_shoots/P3.PNG)
    
 ---
 
